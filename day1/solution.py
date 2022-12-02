@@ -1,4 +1,3 @@
-import pprint
 
 elves = dict()
 i = 1
