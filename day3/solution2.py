@@ -1,12 +1,10 @@
 
 priority = 0
 with open('input.txt') as f:
-    c = 0
     lines = []
     for line in f:
         lines.append(line.strip())
-        c += 1
-        if c < 3:
+        if len(lines) < 3:
             continue
 
         z = set.intersection(*[set(l) for l in lines])
@@ -24,7 +22,6 @@ with open('input.txt') as f:
         print()
 
         # reset
-        c = 0
         lines = []
 
 print(priority)
