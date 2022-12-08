@@ -23,27 +23,27 @@ with open('input.txt') as f:
                 p = '/'.join(path) + '/'
                 print(f'{command} -> cd {p}')
             elif line[1] == 'ls':
-            
                 p = '/'.join(path) + '/'
                 directories.setdefault(p, 0)
                 print(f'{command}')
         elif command == 'ls':
-            size, name = line[0], line[1]
-            is_file = size.isnumeric()
-            is_dir = not is_file
             p = '/'.join(path) + '/'
+            size, name = line[0], line[1]
             name = p + name
             print(f'{name}, {size}')
-            if is_dir:
-                directories.setdefault(p, 0)
-            if is_file:
-                # file
+            if size.isnumeric():
                 size = int(size)
                 files[name] = size
                 for i in range(len(path)):
                     p = '/'.join(path[:i+1]) + '/'
                     directories[p] += size
+            else:
+                # potentially undiscovered directory
+                directories.setdefault(p, 0)
 
+# part1
+
+print()
 under_100_000 = 0
 for d in directories:
     flag = ""
@@ -52,6 +52,9 @@ for d in directories:
         under_100_000 += directories[d]
     print(d, directories[d], flag)
 print(under_100_000)
+
+
+# part2
 
 total = 70_000_000
 minimum = 30_000_000
