@@ -46,9 +46,11 @@ with open('input.txt') as f:
 
 under_100_000 = 0
 for d in directories:
-    print(d, directories[d])
-    if directories[d] < 100_000:
+    flag = ""
+    if directories[d] <= 100_000:
+        flag += "*"
         under_100_000 += directories[d]
+    print(d, directories[d], flag)
 print(under_100_000)
 
 total = 70_000_000
@@ -56,6 +58,9 @@ minimum = 30_000_000
 used = directories['/']
 available = total - used
 needed = minimum - available
+
+print()
+print(needed)
 
 candidates = {}
 for d in directories:
