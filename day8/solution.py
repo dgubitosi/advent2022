@@ -58,23 +58,19 @@ for i in range(height):
             # score
             scores = [0]*4
             for t in reversed(up):
-                if t <= tree:
-                    scores[0] += 1
+                scores[0] += 1
                 if t >= tree:
                     break
             for t in down:
-                if t <= tree:
-                    scores[1] += 1
+                scores[1] += 1
                 if t >= tree:
                     break
             for t in reversed(left):
-                if t <= tree:
-                    scores[2] += 1
+                scores[2] += 1
                 if t >= tree:
                     break
             for t in right:
-                if t <= tree:
-                    scores[3] += 1
+                scores[3] += 1
                 if t >= tree:
                     break
             score = scores[0]*scores[1]*scores[2]*scores[3]
