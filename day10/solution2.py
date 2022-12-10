@@ -18,10 +18,13 @@ with open('input.txt') as f:
         _cycles = _op[op]
 
         for c in range(_cycles):
-            cycle += 1
+            # get crt gun position before
+            # incrementing the cycle count
+            # because its zero based
+            # 0 - 39 = first row
             row, pos = divmod(cycle, _width)
-            pos -= 1
 
+            cycle += 1
             sprite = [x-1, x, x+1]
             #print(cycle, (row, pos), sprite)
             if pos in sprite:
