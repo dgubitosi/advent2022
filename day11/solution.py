@@ -15,7 +15,6 @@ with open('input.txt') as f:
             #print(monkey)
             MONKEYS.setdefault(monkey, dict())
             MONKEYS[monkey]['inspections'] = 0
-            MONKEYS[monkey]['inspections_per_round'] = list()
         elif line[0] == 'Starting':
             items = [int(i) for i in ''.join(line[2:]).split(',')]
             #print(monkey, items)
@@ -55,9 +54,9 @@ for c in range(20):
     for m in MONKEYS:
         monkey = MONKEYS[m]
         #print(monkey)
+        print(f'Monkey {m}:')
         items = monkey['items']
         monkey['inspections'] += len(items)
-        monkey['inspections_per_round'].append(len(items))
         while items:
             item = monkey['items'].pop(0)
             print(f'  Monkey inspects an item with worry level of {item}.')
