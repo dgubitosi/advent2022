@@ -1,7 +1,7 @@
 
 
 MONKEYS = {}
-with open('input.txt') as f:
+with open('test.txt') as f:
     monkey = None
     for line in f:
         line = line.strip()
@@ -15,7 +15,6 @@ with open('input.txt') as f:
             #print(monkey)
             MONKEYS.setdefault(monkey, dict())
             MONKEYS[monkey]['inspections'] = 0
-            MONKEYS[monkey]['inspections_per_round'] = list()
         elif line[0] == 'Starting':
             items = [int(i) for i in ''.join(line[2:]).split(',')]
             #print(monkey, items)
@@ -52,26 +51,36 @@ def update_worry(a, op, b=0):
         new *= a
     return new, s
 
-for c in range(20):
+import time
+st = time.time()
+
+for c in range(100):
+    _round = c + 1
+    _print = False
+    if _round == 1 or _round % 10 == 0: #_round % 1000 == 0:
+        _print = True
+        et = time.time() - st
+        print(f'\n{et}\n== After round {_round} ==')
     for m in MONKEYS:
         monkey = MONKEYS[m]
-        #print(monkey)
         items = monkey['items']
         monkey['inspections'] += len(items)
-        monkey['inspections_per_round'].append(len(items))
+        if _print:
+            print(f'Monkey {m} inspected items {monkey["inspections"]} times.')
+            print(f'.. {monkey["items"]}')
         while items:
             item = monkey['items'].pop(0)
-            print(f'  Monkey inspects an item with worry level of {item}.')
+            #print(f'  Monkey inspects an item with worry level of {item}.')
             worry, s = update_worry(item, *monkey['worry'])
-            print(f'    Worry level is {s} to {worry}')
-            worry = worry // 3
+            #print(f'    Worry level is {s} to {worry}')
+            #worry = worry // 3
             test = monkey['test']
-            print(f'    Monkey gets bored with item. Worry level is divided by 3 to {worry}.')
+            #print(f'    Monkey gets bored with item. Worry level is divided by 3 to {worry}.')
             _true = worry % test == 0
             is_not = '' if _true else ' not '
-            print(f'    Current worry level is{is_not}divisible by {test}.')
+            #print(f'    Current worry level is{is_not}divisible by {test}.')
             next_monkey = monkey[_true]
-            print(f'    Item with worry level {worry} is thrown to monkey {next_monkey}.')
+            #print(f'    Item with worry level {worry} is thrown to monkey {next_monkey}.')
             MONKEYS[next_monkey]['items'].append(worry)
 
 activity = sorted(MONKEYS, key=lambda m: MONKEYS[m]['inspections'], reverse=True)
