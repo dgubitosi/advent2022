@@ -67,7 +67,7 @@ for c in range(20):
             print(f'    Monkey gets bored with item. Worry level is divided by 3 to {worry}.')
             test = monkey['test']
             _true = worry % test == 0
-            is_not = '' if _true else ' not '
+            is_not = ' ' if _true else ' not '
             print(f'    Current worry level is{is_not}divisible by {test}.')
             next_monkey = monkey[_true]
             print(f'    Item with worry level {worry} is thrown to monkey {next_monkey}.')
