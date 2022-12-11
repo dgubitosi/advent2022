@@ -39,18 +39,17 @@ with open('input.txt') as f:
             MONKEYS[monkey][test] = n
 
 def update_worry(a, op, b=0):
-    new = a
     s = ''
     if op == '+':
         s += f'increases by {b}'
-        new +=  b
+        a += b
     elif op == '*':
         s += f'mulitiplied by {b}'
-        new *= b
+        a *= b
     elif op == 'sq':
         s += 'multipied by itself'
-        new *= a
-    return new, s
+        a *= a
+    return a, s
 
 for c in range(20):
     for m in MONKEYS:
@@ -65,8 +64,8 @@ for c in range(20):
             worry, s = update_worry(item, *monkey['worry'])
             print(f'    Worry level is {s} to {worry}')
             worry = worry // 3
-            test = monkey['test']
             print(f'    Monkey gets bored with item. Worry level is divided by 3 to {worry}.')
+            test = monkey['test']
             _true = worry % test == 0
             is_not = '' if _true else ' not '
             print(f'    Current worry level is{is_not}divisible by {test}.')
