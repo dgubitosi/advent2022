@@ -19,24 +19,7 @@ def _replace(source, index):
     layer[element] = [layer[element]]
     return source
 
-signals = []
-with open('input.txt') as f:
-    for line in f:
-        line = line.strip()
-        if line:
-            signals.append(eval(line))
-
-pair = 0
-_sum = 0
-for i in range(0, len(signals), 2):
-    pair += 1
-    left = signals[i]
-    right = signals[i+1]
-
-    print(f'== Pair {pair} ==')
-    print(left)
-    print(right)
-    print()
+def equals(left, right):
 
     l_index = [0]
     r_index = [0]
@@ -104,8 +87,29 @@ for i in range(0, len(signals), 2):
         l = _get(left, l_index)
         r = _get(right, r_index)
 
+    return correct
+
+signals = []
+with open('input.txt') as f:
+    for line in f:
+        line = line.strip()
+        if line:
+            signals.append(eval(line))
+
+pair = 0
+_sum = 0
+for i in range(0, len(signals), 2):
+    pair += 1
+    left = signals[i]
+    right = signals[i+1]
+
+    print(f'== Pair {pair} ==')
+    print(left)
+    print(right)
+    print()
+
     _is = "is"
-    if correct:
+    if equals(left, right):
         _sum += pair
     else:
         _is += " not"
