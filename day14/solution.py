@@ -5,11 +5,12 @@ class IntoTheVoid(Exception):
 
 class Board:
 
-    def __init__(self, drop=None, print=False, debug=False):
+    def __init__(self, drop=None, _print=False, _debug=False):
         if drop: self.drop = drop
-
-        self._print = print
-        self._debug = debug
+        self._debug = _debug
+        self._print = _print
+        if self._print:
+            self._debug = False
 
         self.positions = dict()
         self.x_lo = 0
@@ -23,13 +24,10 @@ class Board:
         self._debug = debug
 
     def rock(self, position):
-        self.add(position, '#')
+        return self.add(position, '#')
 
     def sand(self, position):
-        self.add(position, 'o')
-
-    def air(self, position):
-        self.add(position, False)
+        return self.add(position, 'o')
 
     def add(self, position, item):
         self.positions[position] = item
@@ -42,37 +40,37 @@ class Board:
             self.x_lo = min(self.x_lo, x)
         self.x_hi = max(self.x_hi, x)
         self.y_hi = max(self.y_hi, y)
+        return item
 
     def get(self, position):
         if self._debug: print("get", position)
-        if position not in self.positions:
+        item = None
+        if position in self.positions:
+            item = self.positions[position]
+        else:
             x, y = position
             # part1 does not have a floor
             if not self.floor:
                 # we're past the bottom!
                 if y > self.y_hi:
                     raise IntoTheVoid
-                else:
-                    self.air(position)
-            # part2 adds a floor
+            # part2 adds the floor as its encountered
+            # self.floor contains the old bottom
+            elif self.floor and y == self.floor + 1:
+                # one space below the bottom is air
+                item = False
+            elif self.floor and y == self.floor + 2:
+                # two spaces below the bottom is rock
+                item = self.rock(position)
             else:
-                # builds the floor
-                if y == self.floor + 1:
-                    if self._debug: print("setting floor at", position)
-                    self.air(position)
-                    self.rock((x, y + 1))
-                # builds the floor
-                elif y == self.floor + 2:
-                    if self._debug: print("setting floor at", position)
-                    self.rock(position)
-                else:
-                    self.air(position)
-
-        if self._debug: print("return", self.positions[position])
-        return self.positions[position]
+                # all other empty space is air
+                item = False
+        if self._debug: print("return", item)
+        return item
 
     def add_floor(self, floor=True):
         if floor:
+            # hold the old bottom
             self.floor = self.y_hi
         else:
             self.floor = False
@@ -113,8 +111,8 @@ class Board:
                             break
 
                 self.sand((x, y))
-                if self._debug: print("count", count, (x,y))
                 if self._print: self.print()
+                if self._print or self._debug: print("count", count, (x,y))
 
         # done
         except IntoTheVoid:
