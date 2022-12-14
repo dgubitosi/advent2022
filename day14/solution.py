@@ -36,6 +36,49 @@ class Board:
         #print("return", self.positions[position])
         return self.positions[position]
 
+    def drop(self, position):
+        self.drop = position
+        self.add(self.drop, '+')
+
+    def fall(self):
+        count = 0
+        try:
+            while True:
+                count += 1
+
+                # start at 500, 0 and drop until something
+                # is hit
+                x, y = self.drop
+                y += 1
+                while True:
+                    # keep dropping
+                    while not self.get((x, y)):
+                        y += 1
+
+                    under = board.get((x, y))
+                    # sand encountered something
+                        # try to move left or right
+                    if under:
+                        # diagonal left
+                        if not self.get((x-1, y)):
+                            x -= 1
+                        # diagonal right
+                        elif not self.get((x+1, y)):
+                            x += 1
+                        # stuck
+                        else:
+                            y -= 1
+                            break
+
+                self.add((x, y), SAND)
+                #print(count, (x,y))
+                #self.print()
+        except:
+            pass
+
+        self.rest = count - 1
+        return self.rest
+
     def print(self):
         #print("y:", self.y_lo, "-", self.y_hi)
         #print("x:", self.x_lo, "-", self.x_hi)
@@ -71,43 +114,7 @@ with open('input.txt') as f:
                     board.add((x, y), ROCK)
 
 # drop point
-drop = (500, 0)
-board.add(drop, '+')
-board.print()
+board.drop((500, 0))
 
-try:
-    count = 0
-    while True:
-        count += 1
-
-        # start at 500, 0 and drop until something
-        # is hit
-        x, y = drop
-        y += 1
-        while True:
-            # keep dropping
-            while not board.get((x, y)):
-                y += 1
-
-            under = board.get((x, y))
-            # sand encountered something
-                # try to move left or right
-            if under:
-                # diagonal left
-                if not board.get((x-1, y)):
-                    x -= 1
-                # diagonal right
-                elif not board.get((x+1, y)):
-                    x += 1
-                # stuck
-                else:
-                    y -= 1
-                    break
-
-        board.add((x, y), SAND)
-        print(count, (x,y))
-        board.print()
-except:
-    pass
-
-print(count-1)
+# part 1
+print(board.fall())
