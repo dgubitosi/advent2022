@@ -21,38 +21,34 @@ def x_range(position, distance, y, debug=False):
     if (py - distance) <= y <= (py + distance):
         # for y, solve for x
         # d = abs(x-sx) + abs(y-sy)
-        # abs(x-sx) = dist - abs(y-sy)
-        # x = sx +/- (dist - abs(y-sy))
-        dy = d - abs(y - py)
-        x1 = px - dy
-        x2 = px + dy
-        xr = (min(x1, x2), max(x1, x2))
+        # abs(x-sx) = d - abs(y-sy)
+        # x = sx +/- (d - abs(y-sy))
+        dy = distance - abs(y - py)
+        xr = (px - dy, px + dy)
         if debug: print(f'sensor at {position}, d={distance}, y={y}, x-range={xr}')
         return xr
-    else:
-        return None
+    return None
 
 def squash(source, debug=False):
     if debug: print(f'squash: {source}')
     if len(source) < 2:
         return source
-    else:
-        # len(source) > 1
-        _ranges = sorted(source)
-        i = 1
-        while i < len(_ranges):
-            a = _ranges[i-1]
-            b = _ranges[i]
-            if debug: print(f'range[{i-1}]={a}, range[{i}]={b}')
-            # overlaps or adjacent
-            if a[0] <= b[0] <= a[1]+1:
-                n = (a[0], max(a[1], b[1]))
-                if debug: print(f'.. reduced to {n}')
-                _ranges[i-1] = n
-                del _ranges[i]
-            else:
-                i += 1
-        return _ranges
+    # len(source) > 1
+    _ranges = sorted(source)
+    i = 1
+    while i < len(_ranges):
+        a = _ranges[i-1]
+        b = _ranges[i]
+        if debug: print(f'range[{i-1}]={a}, range[{i}]={b}')
+        # overlaps or adjacent
+        if a[0] <= b[0] <= a[1]+1:
+            n = (a[0], max(a[1], b[1]))
+            if debug: print(f'.. reduced to {n}')
+            _ranges[i-1] = n
+            del _ranges[i]
+        else:
+            i += 1
+    return _ranges
 
 with open(name) as f:
     for line in f:
@@ -93,7 +89,7 @@ print("part1:", not_present - len(beacons_at_y))
 print()
 
 # part2
-# after optmizations, brute force now takes 100 seconds
+# after optmizations, brute force now under 100 seconds
 print('part2 starting ...')
 
 import time
@@ -106,8 +102,7 @@ for y in range(y_range):
         print(f'{y} .. {et:.3f} s')
 
     for s in sensors:
-        d = sensors[s]
-        _x_range = x_range(s, d, y)
+        _x_range = x_range(s, sensors[s], y)
         if _x_range:
             x_ranges.append(_x_range)
 
