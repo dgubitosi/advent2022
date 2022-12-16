@@ -17,29 +17,28 @@ x_ranges = list()
 
 def x_range(position, distance, y, debug=False):
     px, py = position
-    _range = []
-
-    # for y, solve for x
-    # d = abs(x-sx) + abs(y-sy)
-    # abs(x-sx) = dist - abs(y-sy)
-    x1 = px - (d - abs(y-py))
-    x2 = px + (d - abs(y-py))
-    xr = (min(x1, x2), max(x1, x2))
-
-    # check
-    d1 = dist(position, (xr[0],y))
-    d2 = dist(position, (xr[1],y))
-    if d1 <= distance and d2 <= distance:
+    # does the sensor area intersect the y row?
+    if (py - distance) <= y <= (py + distance):
+        # for y, solve for x
+        # d = abs(x-sx) + abs(y-sy)
+        # abs(x-sx) = dist - abs(y-sy)
+        # x = sx +/- (dist - abs(y-sy))
+        dy = d - abs(y - py)
+        x1 = px - dy
+        x2 = px + dy
+        xr = (min(x1, x2), max(x1, x2))
         if debug: print(f'sensor at {position}, d={distance}, y={y}, x-range={xr}')
-        _range = xr
-
-    return _range
+        return xr
+    else:
+        return None
 
 def squash(source, debug=False):
-    _ranges = sorted(source)
-    if debug: print(f'squash: {_ranges}')
-    if len(_ranges) > 1:
-        _ranges.sort()
+    if debug: print(f'squash: {source}')
+    if len(source) < 2:
+        return source
+    else:
+        # len(source) > 1
+        _ranges = sorted(source)
         i = 1
         while i < len(_ranges):
             a = _ranges[i-1]
@@ -85,6 +84,7 @@ with open(name) as f:
             x_ranges.append(_x_range)
 
 x_ranges = squash(x_ranges, debug=True)
+print(x_ranges)
 
 not_present = 0
 for x in x_ranges:
@@ -93,7 +93,7 @@ print("part1:", not_present - len(beacons_at_y))
 print()
 
 # part2
-# not bad, brute force takes 5 minutes
+# after optmizations, brute force now takes 100 seconds
 print('part2 starting ...')
 
 import time
@@ -107,7 +107,6 @@ for y in range(y_range):
 
     for s in sensors:
         d = sensors[s]
-
         _x_range = x_range(s, d, y)
         if _x_range:
             x_ranges.append(_x_range)
@@ -116,9 +115,10 @@ for y in range(y_range):
     if len(x_ranges) == 2:
         et = time.time() - st
         print(f'{y} .. {et:.3f} s')
-        print(x_ranges, y)
+        print(x_ranges)
         x = x_ranges[0][1] + 1
         if x != x_ranges[1][0] - 1:
             raise Exception('Barf!')
+        print(f'position ({x}, {y})')
         print("part2:", x * 4000000 + y)
         break
