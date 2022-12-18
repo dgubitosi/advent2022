@@ -66,6 +66,47 @@ for z in range(0, _z[-1]+1):
         if z == c[2]:
             planes[c[2]][c[1]][c[0]] = 1
 
+planes[0][0][0] = 0
+start = (0,0,0)
+
+visited = set()
+to_visit = list()
+to_visit.append(start)
+
+#print("walking...")
+while to_visit:
+    n = to_visit.pop(0)
+    #print(n)
+    if n not in visited:
+        visited.add(n)
+    else:
+        continue
+
+    i, j, k = n
+    if planes[i][j][k] == 0:
+        # find all adjacent points
+        neighbors = list()
+        if i > 0:
+            neighbors.append((i-1,j,k))
+        if i < len(planes)-1:
+            neighbors.append((i+1,j,k))
+        if j > 0:
+            neighbors.append((i,j-1,k))
+        if j < len(planes[z])-1:
+            neighbors.append((i,j+1,k))
+        if k > 0:
+            neighbors.append((i,j,k-1))
+        if k < len(planes[z][y])-1:
+            neighbors.append((i,j,k+1))
+        for n in neighbors:
+            to_visit.append(n)
+            z, y, x = n
+            if planes[z][y][x] < 0:
+                planes[z][y][x] = 0
+
+_print()
+exit()
+
 # z = 0 -> max
 for i in range(len(planes)):
     for j in range(len(planes[z])):
