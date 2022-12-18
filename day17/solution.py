@@ -215,13 +215,6 @@ class Game():
             print()
 
     def print(self):
-        bottom = self.corner[0]
-        top = bottom + self.shapes.height
-        _y = (bottom, top)
-        left = self.corner[1]
-        right = left + self.shapes.width
-        _x = (left, right)
-
         icons = ['.', '@', '#']
         y = self.height - 1
         while y >= 0:
