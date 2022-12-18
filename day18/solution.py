@@ -11,37 +11,6 @@ with open("input.txt") as f:
         _z.add(z)
         cubes.append(p)
 
-adjacent = dict()
-for i in range(len(cubes)):
-    a = cubes[i]
-    adjacent[i] = list()
-    for j in range(len(cubes)):
-        if i == j:
-            continue
-        b = cubes[j]
-        diff = abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2])
-        if diff == 1:
-            #print(f'adjacent: {i}:{cubes[i]} and {j}:{cubes[j]}')
-            adjacent[i].append(j)
-
-total = 0
-for a in adjacent:
-    sides = 6
-    sides -= len(adjacent[a])
-    total += sides
-print()
-print("part1:", total)
-print()
-print()
-
-_x = sorted(list(_x))
-_y = sorted(list(_y))
-_z = sorted(list(_z))
-
-print(_x)
-print(_y)
-print(_z)
-
 def _print():
     icons = ['~', '.', '#']
     for i, z in enumerate(planes):
@@ -58,6 +27,38 @@ def _print():
             print(row)
         print("z-plane:", i)
 
+def adjacency(_list):
+    adjacent = dict()
+    for i in range(len(_list)):
+        a = _list[i]
+        adjacent[i] = list()
+        for j in range(len(_list)):
+            if i == j:
+                continue
+            b = _list[j]
+            diff = abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2])
+            if diff == 1:
+                #print(f'adjacent: {i}:{cubes[i]} and {j}:{cubes[j]}')
+                adjacent[i].append(j)
+    return adjacent
+
+adjacent = adjacency(cubes)
+area = 0
+for a in adjacent:
+    sides = 6
+    sides -= len(adjacent[a])
+    area += sides
+
+print("part1:", area)
+
+_x = sorted(list(_x))
+_y = sorted(list(_y))
+_z = sorted(list(_z))
+
+#print(_x)
+#print(_y)
+#print(_z)
+
 planes = list()
 row = [-1]*(_x[-1]+1)
 for z in range(0, _z[-1]+1):
@@ -66,6 +67,7 @@ for z in range(0, _z[-1]+1):
         if z == c[2]:
             planes[c[2]][c[1]][c[0]] = 1
 
+# start the corner as exterior space
 planes[0][0][0] = 0
 start = (0,0,0)
 
@@ -104,85 +106,21 @@ while to_visit:
             if planes[z][y][x] < 0:
                 planes[z][y][x] = 0
 
-_print()
-exit()
+#_print()
 
-# z = 0 -> max
+interior = list()
 for i in range(len(planes)):
     for j in range(len(planes[z])):
         for k in range(len(planes[z][y])):
             if planes[i][j][k] < 0:
-                # outer plane
-                if i == 0:
-                    planes[i][j][k] = 0
-                # otherwise check the adjacent plane
-                else:
-                    if planes[i-1][j][k] == 0:
-                        planes[i][j][k] = 0
+                interior.append((i,j,k))
 
-# y = 0 -> max
-for i in range(len(planes)):
-    for j in range(len(planes[z])):
-        for k in range(len(planes[z][y])):
-            if planes[i][j][k] < 0:
-                # outer plane
-                if j == 0:
-                    planes[i][j][k] = 0
-                # otherwise check the adjacent plane
-                else:
-                    if planes[i][j-1][k] == 0:
-                        planes[i][j][k] = 0
+adjacent = adjacency(interior)
+space = 0
+for a in adjacent:
+    sides = 6
+    sides -= len(adjacent[a])
+    space += sides
 
-# x = 0 -> max
-for i in range(len(planes)):
-    for j in range(len(planes[z])):
-        for k in range(len(planes[z][y])):
-            if planes[i][j][k] < 0:
-                # outer plane
-                if k == 0:
-                    planes[i][j][k] = 0
-                # otherwise check the adjacent plane
-                else:
-                    if planes[i][j][k-1] == 0:
-                        planes[i][j][k] = 0
-
-# z = max -> 0
-for i in range(len(planes)-1, -1, -1):
-    for j in range(len(planes[z])):
-        for k in range(len(planes[z][y])):
-            if planes[i][j][k] < 0:
-                # outer plane
-                if i == len(planes)-1:
-                    planes[i][j][k] = 0
-                # otherwise check the plane below
-                else:
-                    if planes[i+1][j][k] == 0:
-                        planes[i][j][k] = 0
-
-# y = max -> 0
-for i in range(len(planes)):
-    for j in range(len(planes[z])-1, -1, -1):
-        for k in range(len(planes[z][y])):
-            if planes[i][j][k] < 0:
-                # top plane
-                if j == len(planes[z])-1:
-                    planes[i][j][k] = 0
-                # otherwise check the adjacent plane
-                else:
-                    if planes[i][j+1][k] == 0:
-                        planes[i][j][k] = 0
-# x = max -> 0
-for i in range(len(planes)):
-    for j in range(len(planes[z])):
-        for k in range(len(planes[z][y])-1, -1, -1):
-            if planes[i][j][k] < 0:
-                # otherwise check the adjacent plane
-                if k == len(planes[z][y])-1:
-                    planes[i][j][k] = 0
-                # otherwise check the plane below
-                else:
-                    if planes[i][j][k+1] == 0:
-                        planes[i][j][k] = 0
-
-_print()
+print("part2:", area - space, "... interior area:", space)
 
