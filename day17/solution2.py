@@ -269,10 +269,12 @@ if len(sys.argv) > 1:
 import time
 st = time.time()
 game = Game() #_print=True, _debug=True)
+loops = 0
 while True:
-    if game.placed % 1000 == 0:
-        et = time.time()
-        print(f'{game.placed} .. {et:.3f}')
+    if loops and game.corner[0] == game.height - 1:
+        break
+    if loops and loops % 100 == 0:
+        print(loops)
 
     for j in jets:
         game.move(j)
@@ -280,8 +282,12 @@ while True:
         if game.placed == count:
             break
 
+    loops += 1
     if game.placed == count:
         break
 
 game.print()
+print('loops:', loops)
+print('placed;', game.placed)
+print('next piece:', game.shapes.active)
 print('tower height:', game.tower)
