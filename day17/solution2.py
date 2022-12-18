@@ -51,6 +51,7 @@ class Game():
         self.placed = 0
         self.tower = 0
         self.width = 7
+        self.truncated = 0
 
         # initial shape
         self.next_shape()
@@ -84,7 +85,7 @@ class Game():
             y -= 1
 
         # update tower height
-        self.tower = y + 1
+        self.tower = self.truncated + y + 1
 
         # extend field by 3 rows
         h = self.height + 3
@@ -98,11 +99,37 @@ class Game():
             self.field.append([0]*self.width)
         self.draw_shape(1)
 
+        if self.height % 100 == 0:
+            self.truncate()
+
         if self._print:
             print('placed:', self.placed)
             print('height:', self.tower)
             self.print()
             print()
+
+    def truncate(self):
+        #print("truncating field", self.height)
+        y = self.height - 1
+        chunk = 3
+        while y >= chunk:
+            bottom = y - chunk
+            columns = 0
+            #print(y, bottom)
+            for x in range(self.width):
+                result = sum([self.field[y][x] for y in range(y, bottom, -1)])
+                #print(x, result)
+                if result:
+                    columns += 1
+            #print(columns)
+            if columns == self.width:
+                #print('** TRUNCATED **')
+                # we can remove below the chunk
+                self.truncated += bottom
+                self.field = self.field[bottom:]
+                self.corner = (self.corner[0] - bottom, self.corner[1])
+                break
+            y -= 1
 
     def move(self, direction):
         # move left or right
@@ -222,25 +249,31 @@ class Game():
             for x in range(self.width):
                 #row += str(self.field[y][x])
                 row += icons[self.field[y][x]]
-            row += f'| {y+1}'
+            row += f'| {self.truncated+y+1}'
             print(row)
             y -= 1
-        print('+-------+ 0')
+        print('+-------+', self.truncated)
 
 
 with open('input.txt') as f:
     jets = list(f.readline().strip())
 
 import sys
-count = 2022
+count = 1_000_000_000_000
 if len(sys.argv) > 1:
     try:
         count = int(sys.argv[1])
     except:
         pass
 
+import time
+st = time.time()
 game = Game() #_print=True, _debug=True)
 while True:
+    if game.placed % 1000 == 0:
+        et = time.time()
+        print(f'{game.placed} .. {et:.3f}')
+
     for j in jets:
         game.move(j)
 
@@ -250,9 +283,5 @@ while True:
     if game.placed == count:
         break
 
-#print()
-#game.print()
+game.print()
 print('tower height:', game.tower)
-
-# part 2
-# 1_000_000_000_000
