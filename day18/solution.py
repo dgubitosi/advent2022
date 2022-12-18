@@ -53,8 +53,12 @@ for z in range(0, _z[-1]+1):
 for i, z in enumerate(planes):
     print()
     print("z-plane:", i)
-    for y in z:
-        row = ''
+    row = '+'
+    for j in range(len(z[0])):
+        row += f'{str(j)[-1]}'
+    print(row)
+    for j, y in enumerate(z):
+        row = f'{str(j)[-1]}'
         for x in y:
             if x:
                 row += '#'
