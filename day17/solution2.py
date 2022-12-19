@@ -40,7 +40,9 @@ class Game():
     def __init__(self, _print=False, _debug=False):
         self._print = _print
         self._debug = _debug
+        self.reset()
 
+    def reset(self):
         # shapes
         self.shapes = Shapes()
         self.shape = None
@@ -69,6 +71,17 @@ class Game():
         left = self.corner[1]
         right = left + self.shapes.width - 1
         return (top, bottom, left, right)
+
+    @property
+    def shape_at_top(self):
+        return game.edges[0] == game.height - 1
+
+    @property
+    def new_shape(self):
+        if self.shape_at_top:
+            return self.shapes.active
+        else:
+            None
 
     def next_shape(self):
         # places the next shape on the field
@@ -254,7 +267,71 @@ class Game():
             y -= 1
         print('+-------+', self.truncated)
 
+def track_patterns(jet):
+    dropped, height = None, None
+    k = jet
+    v = (game.placed, game.tower)
+    if k in patterns:
+        patterns[k].append(v)
+        p = patterns[k]
+        if len(p) > 4:
+            print(k, p)
+            dropped = p[1][0] - p[0][0]
+            height = p[1][1] - p[0][1]
+            # check consistency
+            for i in range(len(p)-1, 0, -1):
+                d = p[i][0] - p[i-1][0]
+                h = p[i][1] - p[i-1][1]
+                if d == dropped and h == height:
+                    continue
+                else:
+                    dropped = None
+                    height = None
+                    break
+    else:
+        patterns[k] = [v]
+    return dropped, height
 
+def compute(target, placed, height):
+    print(f'Found pattern ... tower grows {height} every {placed} blocks')
+    bulk = target - placed
+    intervals, remaining = divmod(bulk, placed)
+    tower = intervals * height
+    p, h = play(placed + remaining)
+    return target, tower + h
+
+def play(target, track=False):
+    game.reset()
+    patterns = dict()
+    done = False
+    loops = 0
+    placed, height = None, None
+    while True:
+        for jet, direction in enumerate(jets):
+            # lets look for a repeating pattern of new shapes
+            # coinciding with current position of the jets
+            # capture the jet index whenever shape 0 is added
+            if track and game.new_shape == 0:
+                placed, height = track_patterns(jet)
+                if placed is not None and height is not None:
+                    placed, height = compute(target, placed, height)
+                    done = True
+                    break
+
+            game.move(direction)
+            if game.placed == target:
+                placed = game.placed
+                height = game.tower
+                done = True
+                break
+
+        loops += 1
+        if done:
+            break
+
+    return placed, height
+
+jets = list()
 with open('input.txt') as f:
     jets = list(f.readline().strip())
 
@@ -266,78 +343,17 @@ if len(sys.argv) > 1:
     except:
         pass
 
-def track_patterns():
-    # a new shape as at the top of the board
-    if game.edges[0] == game.height - 1:
-        k = (game.shapes.active, jet)
-        v = (game.placed, game.tower)
-        if k in patterns:
-            patterns[k].append(v)
-            print(k, patterns[k])
-        else:
-            patterns[k] = [v]
-
-game = Game() #_print=True, _debug=True)
-loops = 0
 patterns = dict()
-j_index = 5848
-while True:
-    # looking for a repeating pattern
-    for jet, direction in enumerate(jets):
-        #if loops == 0 and jet < j_index: continue
-        #track_patterns()
-        game.move(direction)
+game = Game() #_print=True, _debug=True)
 
-        if game.placed == count:
-            break
+import time
+st = time.time()
+placed, height = play(count, True)
+et = time.time()
 
-    loops += 1
-    if game.placed == count:
-        break
+print(f'shapes placed: {placed:_}')
+print(f' tower height: {height:_}')
+print(f' running time: {et-st:.3f} s')
 
-game.print()
-print('loops:', loops)
-print('placed;', game.placed)
-print('next piece:', game.shapes.active)
-print('tower height:', game.tower)
-
-patten = '''
-(0, 3610) [(615, 1000), (2375, 3737), (4135, 6474), (5895, 9211), (7655, 11948), (9415, 14685), (11175, 17422), (12935, 20159)]
-
-2375 - 615  = 1760
-4135 - 2375 = 1760
-5895 - 4135 = 1760
-7655 - 5895 = 1760
-9415 - 7655 = 1760
-every 1760 blocks
-
-3737  - 1000  = 2737
-6474  - 3737  = 2737
-9211  - 6474  = 2737
-11948 - 9211  = 2737
-14685 - 11948 = 2737
-the tower grows 2737 in height!
-
-(0, 5848) [(1000, 1587), (2760, 4324), (4520, 7061), (6280, 9798), (8040, 12535), (9800, 15272), (11560, 18009), (13320, 20746)]
-
-2760 - 1000 = 1760
-4520 - 2760 = 1760
-6280 - 4520 = 1760
-
-4324 - 1587 = 2737
-7061 - 4324 = 2737
-9798 - 7061 = 2737
-
-every 1760 blocks adds 2737 height
-@1000 = 1587
-
-1_000_000_000_000 - 1_000 = 999_999_999_000
-divmod(999_999_999_000, 1_760) = (568_181_817, 1_080)
-568_181_817 * 2737 = 1_555_113_633_129
-1_587 + 1_555_113_633_129 = 1_555_113_634_716
-with 1080 blocks remaining to fall, starting with shape 0 at jet 5848
-
-1000 + 1080 = 2080 => 3256
-1_555_113_633_129 + 3_256 =  1_555_113_636_385
-
-'''
+print()
+print(f'part2: {height}')
