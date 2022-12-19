@@ -269,6 +269,7 @@ if len(sys.argv) > 1:
 import time
 st = time.time()
 game = Game() #_print=True, _debug=True)
+loops = 0
 patterns = dict()
 while True:
     # looking for a repeating pattern
