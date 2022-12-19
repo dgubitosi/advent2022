@@ -99,8 +99,8 @@ class Game():
             self.field.append([0]*self.width)
         self.draw_shape(1)
 
-        if self.height % 100 == 0:
-            self.truncate()
+        #if self.height % 100 == 0:
+        #    self.truncate()
 
         if self._print:
             print('placed:', self.placed)
@@ -269,15 +269,21 @@ if len(sys.argv) > 1:
 import time
 st = time.time()
 game = Game() #_print=True, _debug=True)
-loops = 0
+patterns = dict()
 while True:
-    if loops and game.corner[0] == game.height - 1:
-        break
-    if loops and loops % 100 == 0:
-        print(loops)
+    # looking for a repeating pattern
+    for jet, direction in enumerate(jets):
+        # a new shape as at the top of the board
+        if game.edges[0] == game.height - 1:
+            k = (game.shapes.active, jet)
+            v = (game.placed, game.tower)
+            if k in patterns:
+                patterns[k].append(v)
+                print(k, patterns[k])
+            else:
+                patterns[k] = [v]
 
-    for j in jets:
-        game.move(j)
+        game.move(direction)
 
         if game.placed == count:
             break
