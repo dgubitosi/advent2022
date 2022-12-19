@@ -259,8 +259,11 @@ with open('input.txt') as f:
     jets = list(f.readline().strip())
 
 import sys
-count = 1080 
 count = 1_000_000_000_000
+count = 1080
+count = 1000 
+count = 2760
+count = 4520
 if len(sys.argv) > 1:
     try:
         count = int(sys.argv[1])
@@ -288,7 +291,7 @@ while True:
     # looking for a repeating pattern
     for jet, direction in enumerate(jets):
         #if loops == 0 and jet < j_index: continue
-        track_patterns()
+        #track_patterns()
         game.move(direction)
 
         if game.placed == count:
@@ -298,7 +301,7 @@ while True:
     if game.placed == count:
         break
 
-#game.print()
+game.print()
 print('loops:', loops)
 print('placed;', game.placed)
 print('next piece:', game.shapes.active)
