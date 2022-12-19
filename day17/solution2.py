@@ -259,6 +259,7 @@ with open('input.txt') as f:
     jets = list(f.readline().strip())
 
 import sys
+count = 1080 
 count = 1_000_000_000_000
 if len(sys.argv) > 1:
     try:
@@ -266,24 +267,28 @@ if len(sys.argv) > 1:
     except:
         pass
 
+def track_patterns():
+    # a new shape as at the top of the board
+    if game.edges[0] == game.height - 1:
+        k = (game.shapes.active, jet)
+        v = (game.placed, game.tower)
+        if k in patterns:
+            patterns[k].append(v)
+            print(k, patterns[k])
+        else:
+            patterns[k] = [v]
+
 import time
 st = time.time()
 game = Game() #_print=True, _debug=True)
 loops = 0
 patterns = dict()
+j_index = 5848
 while True:
     # looking for a repeating pattern
     for jet, direction in enumerate(jets):
-        # a new shape as at the top of the board
-        if game.edges[0] == game.height - 1:
-            k = (game.shapes.active, jet)
-            v = (game.placed, game.tower)
-            if k in patterns:
-                patterns[k].append(v)
-                print(k, patterns[k])
-            else:
-                patterns[k] = [v]
-
+        #if loops == 0 and jet < j_index: continue
+        track_patterns()
         game.move(direction)
 
         if game.placed == count:
@@ -293,8 +298,49 @@ while True:
     if game.placed == count:
         break
 
-game.print()
+#game.print()
 print('loops:', loops)
 print('placed;', game.placed)
 print('next piece:', game.shapes.active)
 print('tower height:', game.tower)
+
+patten = '''
+(0, 3610) [(615, 1000), (2375, 3737), (4135, 6474), (5895, 9211), (7655, 11948), (9415, 14685), (11175, 17422), (12935, 20159)]
+
+2375 - 615  = 1760
+4135 - 2375 = 1760
+5895 - 4135 = 1760
+7655 - 5895 = 1760
+9415 - 7655 = 1760
+every 1760 blocks
+
+3737  - 1000  = 2737
+6474  - 3737  = 2737
+9211  - 6474  = 2737
+11948 - 9211  = 2737
+14685 - 11948 = 2737
+the tower grows 2737 in height!
+
+(0, 5848) [(1000, 1587), (2760, 4324), (4520, 7061), (6280, 9798), (8040, 12535), (9800, 15272), (11560, 18009), (13320, 20746)]
+
+2760 - 1000 = 1760
+4520 - 2760 = 1760
+6280 - 4520 = 1760
+
+4324 - 1587 = 2737
+7061 - 4324 = 2737
+9798 - 7061 = 2737
+
+every 1760 blocks adds 2737 height
+@1000 = 1587
+
+1_000_000_000_000 - 1_000 = 999_999_999_000
+divmod(999_999_999_000, 1_760) = (568_181_817, 1_080)
+568_181_817 * 2737 = 1_555_113_633_129
+1_587 + 1_555_113_633_129 = 1_555_113_634_716
+with 1080 blocks remaining to fall, starting with shape 0 at jet 5848
+1_555_113_634_716 + 1_672 = 1_555_113_636_388 !TOO HIGH!
+1_555_113_636_388 - 9 = 1_555_113_636_379 !TOO LOW!
+1_555_113_634_716 + 1_672 - 3 = 1_555_113_636_385
+
+'''
