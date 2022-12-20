@@ -1,24 +1,18 @@
 
-filename = "test.txt"
+filename = "input.txt"
 with open(filename) as f:
     doc = [(i, int(v.strip())) for i, v in enumerate(f.readlines())]
 #print([i[-1] for i in doc])
-
 size = len(doc)
+last = size - 1
+
 current = 0
 while current < size:
     for i in range(size):
         if doc[i][0] == current:
             item = doc.pop(i)
             target = item[1] + i
-            if target <= 0:
-                while target <= 0:
-                    target += size
-                target -= 1
-            if target >= size:
-                target %= size
-                target += 1
-            #print(f'{current}:{i}:{item} shift to {item[1]} => {item[1]+i} => {target}')
+            target %= last
             doc.insert(target, item)
             break
     #print([i[-1] for i in doc])
