@@ -285,7 +285,7 @@ while True:
     # looking for a repeating pattern
     for jet, direction in enumerate(jets):
         #if loops == 0 and jet < j_index: continue
-        #track_patterns()
+        track_patterns()
         game.move(direction)
 
         if game.placed == count:
