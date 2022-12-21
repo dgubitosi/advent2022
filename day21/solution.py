@@ -1,4 +1,4 @@
-filename = "test.txt"
+filename = "input.txt"
 
 class Monkey():
     def __init__(self, name, op=None, a=None, b=None):
@@ -26,13 +26,12 @@ with open(filename) as f:
             a = array[1]
             b = array[3]
             m = Monkey(name, op, a, b)
-            #to_solve.append(name)
+            to_solve.append(name)
         monkeys[name] = m
 
-to_solve = ['root']
 while to_solve:
     name = to_solve.pop(0)
-    print(name)
+    #print(name)
     m = monkeys[name]
     if m.value is None:
         a = monkeys[m.a].value
@@ -44,10 +43,8 @@ while to_solve:
             elif m.op == '/': m.value = a / b
         else:
             to_solve.append(name)
-            to_solve.append(m.a)
-            to_solve.append(m.b)
 
-for n in monkeys:
-    print(n, monkeys[n].value)
+#for n in monkeys:
+#    print(n, monkeys[n].value)
 
 print("part1:", monkeys['root'].value)
