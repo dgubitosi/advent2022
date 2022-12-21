@@ -1,4 +1,4 @@
-filename = "test.txt"
+filename = "input.txt"
 
 class Monkey():
     def __init__(self, name, op=None, a=None, b=None):
@@ -61,14 +61,16 @@ def solve(monkeys, to_solve):
                 to_solve_now.append(name)
     return None, None
 
-for n in range(1_000_000):
+# done experimentally trying ranges
+# need to make it programmatic
+for n in range(3_373_767_893_010, 3_373_767_893_099):
     # reset the monkeys
     for m in monkeys:
         monkeys[m].reset()
     monkeys['humn'].value = n
     
     a, b = solve(monkeys, to_solve)
-    print(n, int(abs(a - b)), a, b)
+    print(f'{n:_}, {int(a):_}, {int(b):_}')
     if a == b:
-        print("part2:", n)
+        print("part2:", n) # 3373767893067
         break
