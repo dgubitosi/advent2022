@@ -98,6 +98,7 @@ number = ''
 
 def move(n):
     global pos
+    global heading
 
     if n <= 0:
         return
@@ -115,7 +116,6 @@ def move(n):
     i = 1
     steps = list()
     while i <= int(number):
-
         # move to next position
         try:
             face = 0
@@ -126,8 +126,8 @@ def move(n):
                     face = f
                     break
             assert 1 <= face <= 6
+            print(f'* face {face}:{pos} -> {npos} {grid[npos]}')
 
-            print(f'* face {face} {npos} {grid[npos]}')
             if grid[npos] != '.':
                 # stop!
                 break
@@ -148,28 +148,29 @@ def move(n):
             _d = _direction[0]
             nf, nd = FACES[face][_d]
             nh = DIR[nd]
-            print(f'Wrapping around the {_direction} edge')
-            print(nf, nd, nh)
-            # east
-            if heading == 0:
-                npos = (ny, rows[ny][0])
-            # west
-            elif heading == 180:
-                npos = (ny, rows[ny][1])
-            # north
-            elif heading == 90:
-                for _y in range(len(rows)-1, -1, -1):
-                    print("N", _y, nx, rows[_y])
-                    if nx in range(rows[_y][0], rows[_y][1]+1):
-                        npos = (_y, nx)
-                        break
-            # south
-            elif heading == 270:
-                for _y in range(len(rows)):
-                    print("S", _y, nx, rows[_y])
-                    if nx in range(rows[_y][0], rows[_y][1]+1):
-                        npos = (_y, nx)
-                        break
+            print(f'Wrapping around the {_direction} edge, face {face} to {nf}')
+            tr = f'{face}:{nf}'
+            y, x = npos
+            transform = {
+                "1:3": (x-50, 99),          # y off grid
+                "1:4": (100+abs(y-49), 99), # x off grid
+                "1:6": (199, x-100),        # y off grid
+                "2:5": (100+abs(y-49), 0),  # x off grid
+                "2:6": (x+100, 0),          # y off grid
+                "3:1": (49, y+50),          # x off grid
+                "3:5": (100, y-50),         # x off grid
+                "4:1": (149-y, 149),        # x off grid
+                "4:6": (x+100, 49),         # y off grid
+                "5:2": (abs(149-y), 50),    # x off grid
+                "5:3": (50+x, 50),          # y off grid
+                "6:1": (0, x+100),          # y off grid
+                "6:2": (0, y-100),          # x off grid
+                "6:4": (149, y-100),        # x off grid
+            }
+            tpos = transform[tr]
+            print(f'transform({tr}): {face}:{npos} -> {nf}:{tpos}, {_d} -> {nd}, heading {nh}')
+            npos = tpos
+            heading = nh
 
     # how many spaces we've moved
     i -= 1
