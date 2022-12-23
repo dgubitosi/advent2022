@@ -30,7 +30,7 @@ def _print(text='', extra=2):
                 row += '.'
         print(row)
 
-def move(e, debug=False):
+def move(i, e, debug=False):
     y, x = e
     pos = None
 
@@ -77,40 +77,55 @@ def move(e, debug=False):
                     _valid.append(p)
             if debug: print(f'  {_direction.title()}', _valid)
             if len(_valid) == 3:
-                if debug: print(' ', _occupied)
                 pos = _valid[1]
                 break
             d += 1
 
     return pos
 
+def run(start=0, end=None):
+    i = start
+    while True:
+        if i == end:
+            break
+        _elves = dict()
+        if debug: print(f'\nRound {i+1}, first half')
+        for e in elves:
+            if debug: print(f'Elf {e}')
+            np = move(i, e, debug)
+            if np:
+                _elves.setdefault(np, list()).append(e)
+
+        if debug: print(f'\nRound {i+1}, second half')
+        moved = 0
+        for e in _elves:
+            if len(_elves[e]) == 1:
+                st = _elves[e][0]
+                if debug: print(f'  Move: {st} -> {e}')
+                del elves[st]
+                elves[e] = True
+                moved += 1
+
+        i += 1
+        if debug:
+            if i in [1,2,3,4,5,10]:
+                print()
+                _print(text=f'== End of Round {i} ==')
+        if not moved:
+            if debug: print(f'Round {i}, elves cant move!')
+            break
+
+    return i
+
+
 debug = False
 if debug: _print(text='== Initial State ==')
-i = 0
-while i < 10:
-    _elves = dict()
-    if debug: print(f'\nRound {i+1}, first half')
-    for e in elves:
-        if debug: print(f'Elf {e}')
-        np = move(e, debug)
-        if np:
-            _elves.setdefault(np, list()).append(e)
 
-    if debug: print(f'\nRound {i+1}, second half')
-    for e in _elves:
-        if len(_elves[e]) == 1:
-            st = _elves[e][0]
-            if debug: print(f'  Move: {st} -> {e}')
-            del elves[st]
-            elves[e] = True
+# part 1
+# count unoccupied tiles in minimum rectangle
+# after 10 rounds
 
-    i += 1
-    if debug:
-        if i in [1,2,3,4,5,10]:
-            print()
-            _print(text=f'== End of Round {i} ==')
-
-# unoccupied tiles in minimum rectangle
+end = run(end=10)
 e = len(elves)
 _y, _x = map(list, zip(*elves))
 _y.sort()
@@ -118,4 +133,11 @@ _x.sort()
 height = _y[-1] - _y[0] + 1
 width = _x[-1] - _x[0] + 1
 area = height * width
-print("part1: ", area - e)
+print("part1:", area - e)
+
+# part 2
+# continue from end of part 1
+# and run until no more movement
+
+end = run(start=end, end=None)
+print("part2:", end)
