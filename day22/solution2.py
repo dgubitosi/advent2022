@@ -39,50 +39,47 @@ DIR = {
     'W': 180,
 }
 
+FINDEX = {
+    (0,2): 1,
+    (0,1): 2,
+    (1,1): 3,
+    (2,1): 4,
+    (2,0): 5,
+    (3,0): 6,
+}
+
 FACES = {
-    1: { 
-        'y': [0, 49],
-        'x': [100, 149],
+    1: {
         'N': (6, 'N'),
         'S': (3, 'W'),
         'E': (4, 'W'),
         'W': (2, 'W'),
     },
-    2: { 
-        'y': [0, 49],
-        'x': [50, 99],
-        'N': (6, 'E'), 
+    2: {
+        'N': (6, 'E'),
         'S': (3, 'S'),
         'E': (1, 'E'), 
         'W': (5, 'E'),
     },
-    3: { 
-        'y': [50, 99],
-        'x': [50, 99],
+    3: {
         'N': (2, 'N'),
         'S': (4, 'S'),
         'E': (1, 'N'),
         'W': (5, 'S'),
     },
     4: {
-        'y': [100, 149],
-        'x': [50, 99],
         'N': (3, 'N'),
         'S': (6, 'W'),
         'E': (1, 'W'),
         'W': (5, 'W'),
     },
     5: {
-        'y': [100, 149],
-        'x': [0, 49],
         'N': (3, 'E'),
         'S': (6, 'S'),
         'E': (4, 'E'),
         'W': (2, 'E'),
     },
     6: {
-        'y': [150, 199],
-        'x': [0, 49],
         'N': (5, 'N'),
         'S': (1, 'S'),
         'E': (4, 'N'),
@@ -90,43 +87,28 @@ FACES = {
     },
 }
 
-pos = (0, rows[0][0])
-path = dict()
-heading = 0
-count = 0
-number = ''
-
 def move(n):
     global pos
     global heading
 
     if n <= 0:
         return
-        
+
     print(f'Position {pos}')
     print(f'Heading {HEADINGS[heading][0]}')
     print(f'Moving {n} spaces')
 
-    py, px = pos
+    pface = FINDEX[tuple(v//50 for v in pos)]
     movement = HEADINGS[heading][-1]
-    ny = py + movement[0]
-    nx = px + movement[1]
-    npos = (ny, nx)
+    npos = tuple(a + b for a, b in zip(pos, movement))
 
     i = 1
     steps = list()
     while i <= int(number):
         # move to next position
         try:
-            face = 0
-            for f in FACES:
-                fy = (FACES[f]['y'][0], FACES[f]['y'][1]+1)
-                fx = (FACES[f]['x'][0], FACES[f]['x'][1]+1)
-                if py in range(*fy) and px in range(*fx):
-                    face = f
-                    break
-            assert 1 <= face <= 6
-            print(f'* face {face}:{pos} -> {npos} {grid[npos]}')
+            nface = FINDEX[tuple(v//50 for v in npos)]
+            print(f'* face:{pface}:{pos} -> face:{nface}:{npos} {grid[npos]}')
 
             if grid[npos] != '.':
                 # stop!
@@ -135,22 +117,20 @@ def move(n):
                 path.setdefault(pos, list()).append(HEADINGS[heading][-2])
                 steps.append(npos)
                 pos = npos
-                py, px = pos
+                pface = FINDEX[tuple(v//50 for v in pos)]
                 movement = HEADINGS[heading][-1]
-                ny = py + movement[0]
-                nx = px + movement[1]
-                npos = (ny, nx)
+                npos = tuple(a + b for a, b in zip(pos, movement))
                 i += 1
 
         # wrap around
         except KeyError:
-            _direction = HEADINGS[heading][0]
-            _d = _direction[0]
-            nf, nd = FACES[face][_d]
+            direction = HEADINGS[heading][0]
+            d = direction[0]
+            nf, nd = FACES[pface][d]
             nh = DIR[nd]
-            print(f'Wrapping around the {_direction} edge, face {face} to {nf}')
-            tr = f'{face}:{nf}'
-            y, x = npos
+            print(f'Wrapping around the {direction} edge, face {pface} to {nf}')
+            tr = f'{pface}:{nf}'
+            y, x = pos
             transform = {
                 "1:3": (x-50, 99),          # y off grid
                 "1:4": (100+abs(y-49), 99), # x off grid
@@ -168,8 +148,9 @@ def move(n):
                 "6:4": (149, y-100),        # x off grid
             }
             tpos = transform[tr]
-            print(f'transform({tr}): {face}:{npos} -> {nf}:{tpos}, {_d} -> {nd}, heading {nh}')
+            print(f'transform({tr}): {pface}:{pos} -> {nf}:{tpos}, direction {d} -> {nd}, heading {heading} -> {nh}')
             npos = tpos
+            ny, nx = npos
             heading = nh
 
     # how many spaces we've moved
@@ -178,6 +159,12 @@ def move(n):
     print(steps)
     print(f'Moved {i} spaces')
     return i
+
+pos = (0, rows[0][0])
+path = dict()
+heading = 0
+count = 0
+number = ''
 
 for c in moves:
     if c.isdigit():
