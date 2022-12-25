@@ -127,30 +127,9 @@ def move(n):
     movement = HEADINGS[heading][-1]
     npos = tuple(a + b for a, b in zip(pos, movement))
 
-    i = 1
     steps = list()
-    while i <= int(number):
-        # move to next position
-        try:
-            nface = FINDEX[tuple(v//50 for v in npos)]
-            if debug: print(f'* face:{pface}:{pos} -> face:{nface}:{npos} {grid[npos]}')
-
-            #draw(100)
-
-            if grid[npos] != '.':
-                # stop!
-                break
-            else:
-                visited.setdefault(pos, list()).append(HEADINGS[heading][-2])
-                steps.append(npos)
-                pos = npos
-                pface = FINDEX[tuple(v//50 for v in pos)]
-                movement = HEADINGS[heading][-1]
-                npos = tuple(a + b for a, b in zip(pos, movement))
-                i += 1
-
-        # wrap around
-        except KeyError:
+    for i in range(n):
+        if npos not in grid:
             direction = HEADINGS[heading][0]
             d = direction[0]
             nf, nd = FACES[pface][d]
@@ -174,17 +153,31 @@ def move(n):
                 "6:2": (0, y-100),          # x off grid
                 "6:4": (149, y-100),        # x off grid
             }
-            tpos = transform[tr]
+            npos = transform[tr]
             if debug: 
-                print(f'transform({tr}): {pface}:{pos} -> {nf}:{tpos}, direction {d} -> {nd}, heading {heading} -> {nh}')
-            npos = tpos
-            ny, nx = npos
+                print(f'transform({tr}): {pface}:{pos} -> {nf}:{npos}, direction {d} -> {nd}, heading {heading} -> {nh}')
             heading = nh
 
-    # how many spaces we've moved
-    i -= 1
-    assert i == len(steps)
+        nface = FINDEX[tuple(v//50 for v in npos)]
+        if debug: print(f'* face:{pface}:{pos} -> face:{nface}:{npos} {grid[npos]}')
+
+        if grid[npos] != '.':
+            # stop!
+            break
+
+        visited.setdefault(pos, list()).append(HEADINGS[heading][-2])
+        steps.append(npos)
+        pos = npos
+        pface = FINDEX[tuple(v//50 for v in pos)]
+        movement = HEADINGS[heading][-1]
+        npos = tuple(a + b for a, b in zip(pos, movement))
+        #draw(100)
+
+    # record path
     path.extend(steps)
+
+    # return how many spaces we've moved
+    i = len(steps)
     if debug:
         print(steps)
         print(f'Moved {i} spaces')
@@ -219,8 +212,8 @@ for c in moves:
         elif c == 'L':
             d = 'Left'
             heading += 90
-            if heading == 360:
-                heading = 0
+            if heading >= 360:
+                heading -= 360
         else:
             continue
         if debug:
@@ -232,7 +225,10 @@ visited.setdefault(pos, list()).append(HEADINGS[heading][-2])
 
 #draw()
 #print(visited)
-#print(path)
+
+#for p in (path):
+#    print(p)
+#exit()
 
 print()
 print("Final Position:", pos)
