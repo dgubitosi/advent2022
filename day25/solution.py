@@ -11,8 +11,8 @@ _snafu = dict([(v, k) for k, v in _convert.items()])
 
 def snafu(n):
     # alter standard base 5
-    # 4 = 5-4 = -1, with carry
-    # 3 = 5-3 = -2, with carry
+    # 4 = 4-5 = -1, with carry
+    # 3 = 3-5 = -2, with carry
     # 2 = 2, no carry
     # 1 = 1, no carry
     # 0 = 0, no carry
