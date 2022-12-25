@@ -87,6 +87,7 @@ FACES = {
 }
 
 # draw grid with path
+# now in technicolor!
 def draw(msec=0):
     import os
     import time
@@ -100,8 +101,8 @@ def draw(msec=0):
             if p in grid:
                 if p == pos:
                     row += colored(' ', 'yellow', attrs=["reverse", "bold"])
-                elif p in path:
-                    row += colored(path[p][-1], 'green', attrs=["reverse"])
+                elif p in visited:
+                    row += colored(visited[p][-1], 'green', attrs=["reverse"])
                 else:
                     row += grid[p]
             else:
@@ -121,11 +122,12 @@ def move(n):
     if debug:
         print(f'Moving {n} spaces')
         print(f'Position {pos}')
-        print(f'Heading {HEADINGS[heading][0]}')
+        print(f'Heading {heading} {HEADINGS[heading][0]}')
 
     pface = FINDEX[tuple(v//50 for v in pos)]
     movement = HEADINGS[heading][-1]
     npos = tuple(a + b for a, b in zip(pos, movement))
+    nh = heading
 
     steps = list()
     for i in range(n):
@@ -156,7 +158,6 @@ def move(n):
             npos = transform[tr]
             if debug: 
                 print(f'transform({tr}): {pface}:{pos} -> {nf}:{npos}, direction {d} -> {nd}, heading {heading} -> {nh}')
-            heading = nh
 
         nface = FINDEX[tuple(v//50 for v in npos)]
         if debug: print(f'* face:{pface}:{pos} -> face:{nface}:{npos} {grid[npos]}')
@@ -168,6 +169,7 @@ def move(n):
         visited.setdefault(pos, list()).append(HEADINGS[heading][-2])
         steps.append(npos)
         pos = npos
+        heading = nh
         pface = FINDEX[tuple(v//50 for v in pos)]
         movement = HEADINGS[heading][-1]
         npos = tuple(a + b for a, b in zip(pos, movement))
@@ -217,7 +219,7 @@ for c in moves:
         else:
             continue
         if debug:
-            print(f'\nTurning {d}, now heading {HEADINGS[heading][0]}\n')
+            print(f'\nTurning {d}, heading {heading} {HEADINGS[heading][0]}\n')
 
 # last position
 count += move(int(number))
@@ -225,10 +227,7 @@ visited.setdefault(pos, list()).append(HEADINGS[heading][-2])
 
 #draw()
 #print(visited)
-
-#for p in (path):
-#    print(p)
-#exit()
+#print(path)
 
 print()
 print("Final Position:", pos)
