@@ -1,19 +1,9 @@
 
 class Valve(object):
-    def __init__(self, name, rate=0, state=False, neighbors=[]):
+    def __init__(self, name, rate=0, neighbors=list()):
         self.name = name
         self.rate = rate
-        self._open = state
         self.neighbors = neighbors
-
-    def open(self):
-        self._open = True
-
-    def is_opened(self):
-        return self._open
-
-    def is_closed(self):
-        return not self._open
 
 valves = dict()
 non_zero = list()
@@ -26,10 +16,14 @@ with open('input.txt') as f:
         if r > 0:
             non_zero.append(v)
         n = ''.join(line[9:]).split(',')
-        valve = Valve(v, r, False, n)
+        valve = Valve(v, r, n)
         valves[v] = valve
 
-def dijkstra(graph, start, end, visited=set(), distances=dict(), predecessors=dict()):
+def dijkstra(start, end, visited=None, distances=None, predecessors=None):
+    if visited is None: visited = set()
+    if distances is None: distances = dict()
+    if predecessors is None: predecessors = dict()
+
     _inf = float('inf')
 
     if start == end:
@@ -42,7 +36,7 @@ def dijkstra(graph, start, end, visited=set(), distances=dict(), predecessors=di
     if not visited:
         distances[start] = 0
 
-    for neighbor in graph[start].neighbors:
+    for neighbor in valves[start].neighbors:
         if neighbor not in visited:
             d = distances[start] + 1
             if d < distances.get(neighbor, _inf):
@@ -50,40 +44,39 @@ def dijkstra(graph, start, end, visited=set(), distances=dict(), predecessors=di
                 predecessors[neighbor] = start
     visited.add(start)
 
-    remaining = dict((k, distances.get(k, _inf)) for k in graph if k not in visited)
+    remaining = dict((k, distances.get(k, _inf)) for k in valves if k not in visited)
     nearest = min(remaining, key=remaining.get)
 
-    return dijkstra(graph, nearest ,end, visited, distances, predecessors)
+    return dijkstra(nearest, end, visited, distances, predecessors)
 
-factorial = 1
-for i in range(1, len(non_zero)+1):
-    factorial *= i
-print(f'{len(non_zero)}, {factorial:_}')
+# we only care about the non-zero valves
+# find shortest path from AA to all non-zero valves
+# and between all the non-zero valves
+steps = dict()
+for start in ['AA'] + non_zero:
+    for end in non_zero:
+        if start == end: continue
+        d, path = dijkstra(start, end)
+        steps.setdefault(start, dict()).update({end: d})
+        steps.setdefault(end, dict()).update({start: d})
 
-# ok so brute force aint gonna work for the real input
-exit()
+# walk all possible paths between the non-zero valves
+# starting from AA with a time limit of 30
+max_rate = 0
+to_visit = [('AA', 30, 0, list())]
+while to_visit:
+    valve, time, rate, visited = to_visit.pop(0)
+    #print(valve, time, rate, visited)
+    for neighbor in steps[valve]:
+        if neighbor not in visited:
+            t = steps[valve][neighbor] + 1
+            # can we reach the valve in time?
+            if t <= time:
+                tr = time - t
+                r = valves[neighbor].rate * tr
+                r += rate
+                max_rate = max(max_rate, r)
+                n = (neighbor, tr, r, visited + [neighbor])
+                to_visit.append(n)
 
-import itertools
-permutations = itertools.permutations(non_zero)
-r_max = 0
-n = 0
-for p in permutations:
-    t = 0
-    i = 1
-    rate = 0
-    p = list(p)
-    p.insert(0, 'AA')
-    while i < len(p):
-        start = p[i-1]
-        end = p[i]
-        d, path = dijkstra(valves, start, end, visited=set(), distances=dict(), predecessors=dict())
-        t += d + 1
-        if t > 30: break
-        rate += valves[end].rate * (30-t)
-        r_max = max(r_max, rate)
-        i += 1
-    n += 1
-    print(n)
-
-print()
-print(r_max)
+print("part1:", max_rate)
