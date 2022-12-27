@@ -7,7 +7,7 @@ class Valve(object):
 
 valves = dict()
 non_zero = list()
-with open('input.txt') as f:
+with open('test.txt') as f:
     for line in f:
         line = line.strip()
         line = line.split()
@@ -62,21 +62,43 @@ for start in ['AA'] + non_zero:
 
 # walk all possible paths between the non-zero valves
 # starting from AA with a time limit of 30
-max_rate = 0
-to_visit = [('AA', 30, 0, list())]
-while to_visit:
-    valve, time, rate, visited = to_visit.pop(0)
-    #print(valve, time, rate, visited)
-    for neighbor in steps[valve]:
-        if neighbor not in visited:
-            t = steps[valve][neighbor] + 1
-            # can we reach the valve in time?
-            if t <= time:
-                tr = time - t
-                r = valves[neighbor].rate * tr
-                r += rate
-                max_rate = max(max_rate, r)
-                n = (neighbor, tr, r, visited + [neighbor])
-                to_visit.append(n)
+def walk(time):
+    max_rate = 0
+    paths = list()
+    to_visit = [('AA', time, 0, set())]
+    while to_visit:
+        valve, time, rate, visited = to_visit.pop(0)
+        #print(valve, time, rate, visited)
+        if visited:
+            max_rate = max(max_rate, rate)
+            paths.append((rate, visited))
+        for neighbor in steps[valve]:
+            if neighbor not in visited:
+                t = steps[valve][neighbor] + 1
+                # can we reach the valve in time?
+                if t <= time:
+                    tr = time - t
+                    r = valves[neighbor].rate * tr
+                    r += rate
+                    n = (neighbor, tr, r, visited | {neighbor})
+                    to_visit.append(n)
+    return max_rate, paths
 
+max_rate, paths = walk(30)
 print("part1:", max_rate)
+
+# there has to be a better way than testing
+# all non-intersecting paths like this, sigh
+
+max_rate, paths = walk(26)
+max_rate = 0
+for p1 in paths:
+    for p2 in paths:
+        r1, s1 = p1
+        r2, s2 = p2
+        #print(s1, s2, r1, r2)
+        if not s1 & s2:
+            r = r1 + r2
+            max_rate = max(max_rate, r)
+
+print("part2:", max_rate)
